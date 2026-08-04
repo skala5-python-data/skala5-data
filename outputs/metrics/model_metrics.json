@@ -1,0 +1,67 @@
+{
+  "model": "LogisticRegression",
+  "random_state": 42,
+  "train_rows": 26029,
+  "test_rows": 6508,
+  "numeric_features": [
+    "age",
+    "fnlwgt",
+    "education-num",
+    "capital-gain",
+    "capital-loss",
+    "hours-per-week"
+  ],
+  "categorical_features": [
+    "workclass",
+    "education",
+    "marital-status",
+    "occupation",
+    "relationship",
+    "race",
+    "sex",
+    "native-country"
+  ],
+  "accuracy": 0.856792,
+  "precision": 0.743492,
+  "recall": 0.61926,
+  "f1": 0.675713,
+  "confusion_matrix": [
+    [
+      4605,
+      335
+    ],
+    [
+      597,
+      971
+    ]
+  ],
+  "classification_report": {
+    "<=50K": {
+      "precision": 0.8852364475201846,
+      "recall": 0.9321862348178138,
+      "f1-score": 0.9081049102741077,
+      "support": 4940.0
+    },
+    ">50K": {
+      "precision": 0.7434915773353752,
+      "recall": 0.6192602040816326,
+      "f1-score": 0.6757132915796799,
+      "support": 1568.0
+    },
+    "accuracy": 0.8567916410571604,
+    "macro avg": {
+      "precision": 0.8143640124277799,
+      "recall": 0.7757232194497232,
+      "f1-score": 0.7919091009268937,
+      "support": 6508.0
+    },
+    "weighted avg": {
+      "precision": 0.8510852556870897,
+      "recall": 0.8567916410571604,
+      "f1-score": 0.8521138134528318,
+      "support": 6508.0
+    }
+  },
+  "model_path": "/Users/kimgayeon/6_PythonData/skala5-data/outputs/models/income_pipeline.joblib",
+  "reloaded_predictions_match": true
+}

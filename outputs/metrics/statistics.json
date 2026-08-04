@@ -1,0 +1,65 @@
+{
+  "test": "Welch independent two-sample t-test",
+  "variable": "hours-per-week",
+  "group_low_income": "<=50K",
+  "group_high_income": ">50K",
+  "low_income_count": 24698,
+  "high_income_count": 7839,
+  "low_income_mean": 38.8429,
+  "high_income_mean": 45.4734,
+  "t_statistic": -45.095026,
+  "p_value": 0.0,
+  "p_value_display": "< 1e-300",
+  "alpha": 0.05,
+  "interpretation": "p-value가 0.05보다 작으므로 두 소득 집단의 주당 근무시간 평균은 통계적으로 유의한 차이가 있다고 해석합니다.",
+  "numeric_correlation": {
+    "age": {
+      "age": 1.0,
+      "fnlwgt": -0.0764,
+      "education-num": 0.0362,
+      "capital-gain": 0.0777,
+      "capital-loss": 0.0577,
+      "hours-per-week": 0.0685
+    },
+    "fnlwgt": {
+      "age": -0.0764,
+      "fnlwgt": 1.0,
+      "education-num": -0.0434,
+      "capital-gain": 0.0004,
+      "capital-loss": -0.0103,
+      "hours-per-week": -0.0189
+    },
+    "education-num": {
+      "age": 0.0362,
+      "fnlwgt": -0.0434,
+      "education-num": 1.0,
+      "capital-gain": 0.1227,
+      "capital-loss": 0.0799,
+      "hours-per-week": 0.1484
+    },
+    "capital-gain": {
+      "age": 0.0777,
+      "fnlwgt": 0.0004,
+      "education-num": 0.1227,
+      "capital-gain": 1.0,
+      "capital-loss": -0.0316,
+      "hours-per-week": 0.0784
+    },
+    "capital-loss": {
+      "age": 0.0577,
+      "fnlwgt": -0.0103,
+      "education-num": 0.0799,
+      "capital-gain": -0.0316,
+      "capital-loss": 1.0,
+      "hours-per-week": 0.0542
+    },
+    "hours-per-week": {
+      "age": 0.0685,
+      "fnlwgt": -0.0189,
+      "education-num": 0.1484,
+      "capital-gain": 0.0784,
+      "capital-loss": 0.0542,
+      "hours-per-week": 1.0
+    }
+  }
+}
