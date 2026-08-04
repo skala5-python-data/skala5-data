@@ -29,6 +29,55 @@ from src.config import (
     INTERACTIVE_CHART_PATH,
 )
 
+def add_analysis_features(
+    dataframe: pd.DataFrame,
+) -> pd.DataFrame:
+    """학력 그룹과 고소득 여부 등 분석용 변수를 추가합니다."""
+
+    analyzed = dataframe.copy()
+
+    education_mapping = {
+        "Preschool": "고졸 미만",
+        "1st-4th": "고졸 미만",
+        "5th-6th": "고졸 미만",
+        "7th-8th": "고졸 미만",
+        "9th": "고졸 미만",
+        "10th": "고졸 미만",
+        "11th": "고졸 미만",
+        "12th": "고졸 미만",
+        "HS-grad": "고졸",
+        "Some-college": "대학 과정·전문학사",
+        "Assoc-acdm": "대학 과정·전문학사",
+        "Assoc-voc": "대학 과정·전문학사",
+        "Bachelors": "학사",
+        "Masters": "대학원 이상",
+        "Prof-school": "대학원 이상",
+        "Doctorate": "대학원 이상",
+    }
+
+    education_order = [
+        "고졸 미만",
+        "고졸",
+        "대학 과정·전문학사",
+        "학사",
+        "대학원 이상",
+    ]
+
+    analyzed["education-group"] = (
+        analyzed["education"].map(education_mapping)
+    )
+
+    analyzed["education-group"] = pd.Categorical(
+        analyzed["education-group"],
+        categories=education_order,
+        ordered=True,
+    )
+
+    analyzed["high-income"] = (
+        analyzed["income"] == ">50K"
+    ).astype(int)
+
+    return analyzed
 
 def create_eda_summary(dataframe: pd.DataFrame) -> dict[str, object]:
     """데이터의 기본 구조와 기술통계 결과를 사전 형태로 반환합니다."""
