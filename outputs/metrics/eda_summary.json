@@ -5,6 +5,28 @@
     "<=50K": 24698,
     ">50K": 7839
   },
+  "education_income_summary": {
+    "고졸 미만": {
+      "count": 4248,
+      "high_income_rate": 5.74
+    },
+    "고졸": {
+      "count": 10494,
+      "high_income_rate": 15.95
+    },
+    "대학 과정·전문학사": {
+      "count": 9731,
+      "high_income_rate": 20.68
+    },
+    "학사": {
+      "count": 5353,
+      "high_income_rate": 41.49
+    },
+    "대학원 이상": {
+      "count": 2711,
+      "high_income_rate": 62.26
+    }
+  },
   "numeric_summary": {
     "age": {
       "count": 32537.0,

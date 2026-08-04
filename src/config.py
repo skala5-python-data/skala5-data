@@ -76,6 +76,14 @@ CORRELATION_CHART_PATH = CHART_DIR / "correlation_heatmap.png"
 # Plotly로 생성한 인터랙티브 차트의 저장 경로입니다.
 INTERACTIVE_CHART_PATH = CHART_DIR / "hours_by_income.html"
 
+# 학력 그룹별 고소득 비율 막대그래프의 저장 경로입니다.
+EDUCATION_INCOME_CHART_PATH = CHART_DIR / "education_income_rate.png"
+
+# 학력 그룹과 직업별 고소득 비율 히트맵의 저장 경로입니다.
+EDUCATION_OCCUPATION_CHART_PATH = (
+    CHART_DIR / "education_occupation_income_heatmap.png"
+)
+
 # 머신러닝 모델의 혼동행렬 차트를 저장할 경로입니다.
 CONFUSION_MATRIX_PATH = CHART_DIR / "confusion_matrix.png"
 

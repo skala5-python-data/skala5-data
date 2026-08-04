@@ -25,9 +25,20 @@ from scipy.stats import ttest_ind
 # 분석 결과 차트를 저장할 경로를 config.py에서 가져옵니다.
 from src.config import (
     CORRELATION_CHART_PATH,
+    EDUCATION_INCOME_CHART_PATH,
+    EDUCATION_OCCUPATION_CHART_PATH,
     INCOME_CHART_PATH,
     INTERACTIVE_CHART_PATH,
 )
+
+
+EDUCATION_LABELS_EN = {
+    "고졸 미만": "Below high school",
+    "고졸": "High school",
+    "대학 과정·전문학사": "College / Associate",
+    "학사": "Bachelor's",
+    "대학원 이상": "Graduate degree",
+}
 
 def add_analysis_features(
     dataframe: pd.DataFrame,
@@ -99,6 +110,21 @@ def create_eda_summary(dataframe: pd.DataFrame) -> dict[str, object]:
     # 예: <=50K가 몇 행인지, >50K가 몇 행인지 확인합니다.
     income_counts = dataframe["income"].value_counts().to_dict()
 
+    # 학력 그룹별 전체 인원과 고소득 비율을 계산합니다.
+    analyzed = add_analysis_features(dataframe)
+    education_income = (
+        analyzed.groupby("education-group", observed=True)["high-income"]
+        .agg(["count", "mean"])
+    )
+
+    education_income_summary = {
+        str(group): {
+            "count": int(row["count"]),
+            "high_income_rate": round(float(row["mean"] * 100), 2),
+        }
+        for group, row in education_income.iterrows()
+    }
+
     # EDA 결과를 하나의 사전으로 묶어 반환합니다.
     return {
         # 전체 행의 개수입니다.
@@ -115,16 +141,22 @@ def create_eda_summary(dataframe: pd.DataFrame) -> dict[str, object]:
             for key, value in income_counts.items()
         },
 
+        # 학력 그룹별 표본 수와 고소득 비율입니다.
+        "education_income_summary": education_income_summary,
+
         # 숫자형 컬럼의 기술통계 결과입니다.
         "numeric_summary": numeric_summary,
     }
 
 
 def create_visualizations(dataframe: pd.DataFrame) -> None:
-    """소득 분포, 상관관계, 근무시간 분포 차트를 생성합니다."""
+    """소득, 상관관계, 학력·직업 및 근무시간 차트를 생성합니다."""
 
     # 차트 저장 폴더가 없으면 자동으로 생성합니다.
     INCOME_CHART_PATH.parent.mkdir(parents=True, exist_ok=True)
+
+    # 학력 그룹과 고소득 여부를 원본을 변경하지 않는 복사본에 추가합니다.
+    analyzed = add_analysis_features(dataframe)
 
     # ---------------------------------------------------------
     # 1. 소득 등급별 데이터 개수 차트
@@ -218,7 +250,98 @@ def create_visualizations(dataframe: pd.DataFrame) -> None:
     plt.close()
 
     # ---------------------------------------------------------
-    # 3. 소득 집단별 주당 근무시간 박스 플롯
+    # 3. 학력 그룹별 고소득 비율 막대그래프
+    # ---------------------------------------------------------
+
+    education_income = (
+        analyzed.groupby("education-group", observed=True)["high-income"]
+        .agg(["count", "mean"])
+        .reset_index()
+    )
+    education_income["high-income-rate"] = education_income["mean"] * 100
+    education_income["education-label"] = education_income[
+        "education-group"
+    ].map(EDUCATION_LABELS_EN)
+
+    plt.figure(figsize=(10, 6))
+    axis = sns.barplot(
+        data=education_income,
+        x="education-label",
+        y="high-income-rate",
+        color="steelblue",
+    )
+
+    # 각 막대 위에 고소득 비율을 표시합니다.
+    for container in axis.containers:
+        axis.bar_label(container, fmt="%.1f%%", padding=3)
+
+    plt.title("High-income Rate by Education Level")
+    plt.xlabel("Education Level")
+    plt.ylabel("High-income Rate (%)")
+    plt.ylim(0, 100)
+    plt.xticks(rotation=15, ha="right")
+    plt.tight_layout()
+    plt.savefig(
+        EDUCATION_INCOME_CHART_PATH,
+        dpi=150,
+        bbox_inches="tight",
+    )
+    plt.close()
+
+    # ---------------------------------------------------------
+    # 4. 학력 그룹과 직업별 고소득 비율 히트맵
+    # ---------------------------------------------------------
+
+    education_occupation = (
+        analyzed.dropna(subset=["occupation"])
+        .groupby(
+            ["education-group", "occupation"],
+            observed=True,
+        )["high-income"]
+        .agg(["count", "mean"])
+        .reset_index()
+    )
+
+    # 표본이 너무 적은 조합은 비율이 불안정하므로 제외합니다.
+    education_occupation = education_occupation.loc[
+        education_occupation["count"] >= 30
+    ].copy()
+    education_occupation["high-income-rate"] = (
+        education_occupation["mean"] * 100
+    )
+
+    occupation_heatmap = education_occupation.pivot(
+        index="education-group",
+        columns="occupation",
+        values="high-income-rate",
+    ).rename(index=EDUCATION_LABELS_EN)
+
+    plt.figure(figsize=(17, 7))
+    sns.heatmap(
+        occupation_heatmap,
+        annot=True,
+        fmt=".1f",
+        cmap="YlGnBu",
+        vmin=0,
+        vmax=100,
+        linewidths=0.3,
+        cbar_kws={"label": "High-income Rate (%)"},
+    )
+    plt.title("High-income Rate by Education Level and Occupation")
+    plt.xlabel("Occupation")
+    plt.ylabel("Education Level")
+    plt.xticks(rotation=45, ha="right")
+    plt.yticks(rotation=0)
+    plt.tight_layout()
+    plt.savefig(
+        EDUCATION_OCCUPATION_CHART_PATH,
+        dpi=150,
+        bbox_inches="tight",
+    )
+    plt.close()
+
+    # ---------------------------------------------------------
+    # 5. 소득 집단별 주당 근무시간 박스 플롯
     # ---------------------------------------------------------
 
     # Plotly를 이용해 인터랙티브 박스 플롯을 생성합니다.
