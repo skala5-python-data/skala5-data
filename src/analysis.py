@@ -1,4 +1,9 @@
 # src/analysis.py
+# 이 모듈은 정제된 Adult Census Income 데이터를 바탕으로
+# 탐색적 데이터 분석(EDA), 시각화, 통계 검정, 그리고 분석용 추가 피처
+# 생성을 담당합니다.
+# create_visualizations()는 여러 차트를 파일로 저장하고,
+# create_eda_summary()와 run_statistics()는 분석 결과를 사전 형태로 반환합니다.
 
 # 화면이 없는 실행 환경에서도 Matplotlib 차트를 저장할 수 있도록 설정합니다.
 import matplotlib
@@ -27,8 +32,10 @@ from src.config import (
     CORRELATION_CHART_PATH,
     EDUCATION_INCOME_CHART_PATH,
     EDUCATION_OCCUPATION_CHART_PATH,
+    EDUCATION_OCCUPATION_GAP_CHART_PATH,
     INCOME_CHART_PATH,
     INTERACTIVE_CHART_PATH,
+    OCCUPATION_EDUCATION_GAP_CHART_PATH,
 )
 
 
@@ -39,6 +46,7 @@ EDUCATION_LABELS_EN = {
     "학사": "Bachelor's",
     "대학원 이상": "Graduate degree",
 }
+
 
 def add_analysis_features(
     dataframe: pd.DataFrame,
@@ -90,6 +98,7 @@ def add_analysis_features(
 
     return analyzed
 
+
 def create_eda_summary(dataframe: pd.DataFrame) -> dict[str, object]:
     """데이터의 기본 구조와 기술통계 결과를 사전 형태로 반환합니다."""
 
@@ -125,6 +134,76 @@ def create_eda_summary(dataframe: pd.DataFrame) -> dict[str, object]:
         for group, row in education_income.iterrows()
     }
 
+    # 학력과 직업 조합별 표본 수와 고소득률을 계산합니다.
+    # 표본이 30명 미만인 조합과 직업 결측 대체 범주는 비교에서 제외합니다.
+    education_occupation = (
+        analyzed.groupby(
+            ["education-group", "occupation"],
+            observed=True,
+        )["high-income"]
+        .agg(["count", "mean"])
+        .reset_index()
+    )
+    education_occupation = education_occupation.loc[
+        (education_occupation["count"] >= 30)
+        & (education_occupation["occupation"] != "Unknown")
+    ].copy()
+    education_occupation["high_income_rate"] = (
+        education_occupation["mean"] * 100
+    )
+
+    # 같은 학력 그룹 안에서 고소득률이 가장 낮고 높은 직업을 찾습니다.
+    occupation_gap_by_education = {}
+    for education_group, group_data in education_occupation.groupby(
+        "education-group",
+        observed=True,
+    ):
+        lowest = group_data.loc[group_data["high_income_rate"].idxmin()]
+        highest = group_data.loc[group_data["high_income_rate"].idxmax()]
+        occupation_gap_by_education[str(education_group)] = {
+            "lowest_occupation": str(lowest["occupation"]),
+            "lowest_rate": round(float(lowest["high_income_rate"]), 2),
+            "highest_occupation": str(highest["occupation"]),
+            "highest_rate": round(float(highest["high_income_rate"]), 2),
+            "gap_percentage_points": round(
+                float(
+                    highest["high_income_rate"]
+                    - lowest["high_income_rate"]
+                ),
+                2,
+            ),
+        }
+
+    # 직업별로 관측된 학력 그룹의 최고·최저 고소득률 격차를 계산합니다.
+    # 비교 안정성을 위해 유효한 학력 그룹이 3개 이상인 직업만 사용합니다.
+    education_gap_by_occupation = []
+    for occupation, group_data in education_occupation.groupby("occupation"):
+        if len(group_data) < 3:
+            continue
+        lowest = group_data.loc[group_data["high_income_rate"].idxmin()]
+        highest = group_data.loc[group_data["high_income_rate"].idxmax()]
+        education_gap_by_occupation.append(
+            {
+                "occupation": str(occupation),
+                "education_groups_compared": int(len(group_data)),
+                "lowest_education_group": str(lowest["education-group"]),
+                "lowest_rate": round(float(lowest["high_income_rate"]), 2),
+                "highest_education_group": str(highest["education-group"]),
+                "highest_rate": round(float(highest["high_income_rate"]), 2),
+                "gap_percentage_points": round(
+                    float(
+                        highest["high_income_rate"]
+                        - lowest["high_income_rate"]
+                    ),
+                    2,
+                ),
+            }
+        )
+    education_gap_by_occupation.sort(
+        key=lambda result: result["gap_percentage_points"],
+        reverse=True,
+    )
+
     # EDA 결과를 하나의 사전으로 묶어 반환합니다.
     return {
         # 전체 행의 개수입니다.
@@ -143,6 +222,12 @@ def create_eda_summary(dataframe: pd.DataFrame) -> dict[str, object]:
 
         # 학력 그룹별 표본 수와 고소득 비율입니다.
         "education_income_summary": education_income_summary,
+
+        # 같은 학력 안에서 직업별 고소득률 차이를 비교한 결과입니다.
+        "occupation_gap_by_education": occupation_gap_by_education,
+
+        # 직업별 학력 그룹 간 고소득률 격차가 큰 순서의 결과입니다.
+        "education_gap_by_occupation": education_gap_by_occupation,
 
         # 숫자형 컬럼의 기술통계 결과입니다.
         "numeric_summary": numeric_summary,
@@ -304,7 +389,8 @@ def create_visualizations(dataframe: pd.DataFrame) -> None:
 
     # 표본이 너무 적은 조합은 비율이 불안정하므로 제외합니다.
     education_occupation = education_occupation.loc[
-        education_occupation["count"] >= 30
+        (education_occupation["count"] >= 30)
+        & (education_occupation["occupation"] != "Unknown")
     ].copy()
     education_occupation["high-income-rate"] = (
         education_occupation["mean"] * 100
@@ -341,7 +427,145 @@ def create_visualizations(dataframe: pd.DataFrame) -> None:
     plt.close()
 
     # ---------------------------------------------------------
-    # 5. 소득 집단별 주당 근무시간 박스 플롯
+    # 5. 같은 학력 내 최저·최고 직업 고소득률 비교
+    # ---------------------------------------------------------
+
+    occupation_extremes = []
+    for education_group, group_data in education_occupation.groupby(
+        "education-group",
+        observed=True,
+    ):
+        lowest = group_data.loc[group_data["high-income-rate"].idxmin()]
+        highest = group_data.loc[group_data["high-income-rate"].idxmax()]
+        occupation_extremes.extend(
+            [
+                {
+                    "education-label": EDUCATION_LABELS_EN[education_group],
+                    "comparison": "Lowest-rate occupation",
+                    "occupation": str(lowest["occupation"]),
+                    "high-income-rate": float(lowest["high-income-rate"]),
+                },
+                {
+                    "education-label": EDUCATION_LABELS_EN[education_group],
+                    "comparison": "Highest-rate occupation",
+                    "occupation": str(highest["occupation"]),
+                    "high-income-rate": float(highest["high-income-rate"]),
+                },
+            ]
+        )
+
+    occupation_extremes_df = pd.DataFrame(occupation_extremes)
+    education_labels = []
+    for education_label, group_data in occupation_extremes_df.groupby(
+        "education-label",
+        sort=False,
+    ):
+        lowest = group_data.loc[
+            group_data["comparison"] == "Lowest-rate occupation"
+        ].iloc[0]
+        highest = group_data.loc[
+            group_data["comparison"] == "Highest-rate occupation"
+        ].iloc[0]
+        education_labels.append(
+            f"{education_label}\n"
+            f"{lowest['occupation']}  ↔  {highest['occupation']}"
+        )
+        occupation_extremes_df.loc[
+            group_data.index,
+            "education-display",
+        ] = education_labels[-1]
+
+    plt.figure(figsize=(13, 8))
+    axis = sns.barplot(
+        data=occupation_extremes_df,
+        x="high-income-rate",
+        y="education-display",
+        hue="comparison",
+        palette=["#A7B0B8", "#3274A1"],
+    )
+    for container in axis.containers:
+        axis.bar_label(container, fmt="%.1f%%", padding=3)
+    plt.title("Lowest vs Highest Occupation Rate within Each Education Level")
+    plt.xlabel("High-income Rate (%)")
+    plt.ylabel("Education Level (Lowest ↔ Highest Occupation)")
+    plt.xlim(0, 100)
+    plt.legend(title="")
+    plt.tight_layout()
+    plt.savefig(
+        EDUCATION_OCCUPATION_GAP_CHART_PATH,
+        dpi=150,
+        bbox_inches="tight",
+    )
+    plt.close()
+
+    # ---------------------------------------------------------
+    # 6. 학력별 고소득률 격차가 큰 직업 TOP 5
+    # ---------------------------------------------------------
+
+    occupation_gaps = []
+    for occupation, group_data in education_occupation.groupby("occupation"):
+        if len(group_data) < 3:
+            continue
+        lowest = group_data.loc[group_data["high-income-rate"].idxmin()]
+        highest = group_data.loc[group_data["high-income-rate"].idxmax()]
+        occupation_gaps.append(
+            {
+                "occupation": str(occupation),
+                "lowest-education": EDUCATION_LABELS_EN[
+                    lowest["education-group"]
+                ],
+                "lowest-rate": float(lowest["high-income-rate"]),
+                "highest-education": EDUCATION_LABELS_EN[
+                    highest["education-group"]
+                ],
+                "highest-rate": float(highest["high-income-rate"]),
+                "gap": float(
+                    highest["high-income-rate"]
+                    - lowest["high-income-rate"]
+                ),
+            }
+        )
+
+    occupation_gap_top5 = pd.DataFrame(occupation_gaps).nlargest(5, "gap")
+    occupation_gap_top5 = occupation_gap_top5.sort_values("gap")
+
+    plt.figure(figsize=(14, 7))
+    axis = sns.barplot(
+        data=occupation_gap_top5,
+        x="gap",
+        y="occupation",
+        color="steelblue",
+    )
+    for patch, (_, result) in zip(
+        axis.patches,
+        occupation_gap_top5.iterrows(),
+    ):
+        axis.text(
+            result["gap"] + 0.8,
+            patch.get_y() + patch.get_height() / 2,
+            (
+                f"{result['gap']:.1f}%p  "
+                f"({result['lowest-education']} {result['lowest-rate']:.1f}%"
+                f" → {result['highest-education']} "
+                f"{result['highest-rate']:.1f}%)"
+            ),
+            va="center",
+            fontsize=9,
+        )
+    plt.title("Top 5 Occupations by Education-level High-income Rate Gap")
+    plt.xlabel("High-income Rate Gap (%p)")
+    plt.ylabel("Occupation")
+    plt.xlim(0, 100)
+    plt.tight_layout()
+    plt.savefig(
+        OCCUPATION_EDUCATION_GAP_CHART_PATH,
+        dpi=150,
+        bbox_inches="tight",
+    )
+    plt.close()
+
+    # ---------------------------------------------------------
+    # 7. 소득 집단별 주당 근무시간 박스 플롯
     # ---------------------------------------------------------
 
     # Plotly를 이용해 인터랙티브 박스 플롯을 생성합니다.
@@ -381,19 +605,19 @@ def create_visualizations(dataframe: pd.DataFrame) -> None:
 
 
 def run_statistics(dataframe: pd.DataFrame) -> dict[str, object]:
-    """소득 집단별 주당 근무시간 평균 차이를 통계적으로 검정합니다."""
+    """소득 집단별 교육 수준 평균 차이를 통계적으로 검정합니다."""
 
-    # 소득이 50K 이하인 집단의 주당 근무시간만 선택합니다.
+    # 소득이 50K 이하인 집단의 교육 수준 수치만 선택합니다.
     # dropna()는 결측치를 제거합니다.
     low_income = dataframe.loc[
         dataframe["income"] == "<=50K",
-        "hours-per-week",
+        "education-num",
     ].dropna()
 
-    # 소득이 50K를 초과하는 집단의 주당 근무시간만 선택합니다.
+    # 소득이 50K를 초과하는 집단의 교육 수준 수치만 선택합니다.
     high_income = dataframe.loc[
         dataframe["income"] == ">50K",
-        "hours-per-week",
+        "education-num",
     ].dropna()
 
     # 두 독립 집단의 평균 차이를 확인하기 위해 Welch t-test를 수행합니다.
@@ -423,12 +647,12 @@ def run_statistics(dataframe: pd.DataFrame) -> dict[str, object]:
     # 유의수준 0.05를 기준으로 통계적 유의성을 해석합니다.
     if p_value < 0.05:
         interpretation = (
-            "p-value가 0.05보다 작으므로 두 소득 집단의 주당 근무시간 "
+            "p-value가 0.05보다 작으므로 두 소득 집단의 교육 수준 "
             "평균은 통계적으로 유의한 차이가 있다고 해석합니다."
         )
     else:
         interpretation = (
-            "p-value가 0.05 이상이므로 두 소득 집단의 주당 근무시간 "
+            "p-value가 0.05 이상이므로 두 소득 집단의 교육 수준 "
             "평균 차이가 통계적으로 유의하다고 보기 어렵습니다."
         )
 
@@ -446,7 +670,7 @@ def run_statistics(dataframe: pd.DataFrame) -> dict[str, object]:
         "test": "Welch independent two-sample t-test",
 
         # 두 집단에서 비교한 변수입니다.
-        "variable": "hours-per-week",
+        "variable": "education-num",
 
         # 비교 대상 집단의 이름입니다.
         "group_low_income": "<=50K",
@@ -456,7 +680,7 @@ def run_statistics(dataframe: pd.DataFrame) -> dict[str, object]:
         "low_income_count": int(low_income.size),
         "high_income_count": int(high_income.size),
 
-        # 각 집단의 평균 주당 근무시간입니다.
+        # 각 집단의 평균 교육 수준 수치입니다.
         "low_income_mean": round(
             float(low_income.mean()),
             4,

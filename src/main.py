@@ -1,4 +1,7 @@
 # src/main.py
+# 전체 분석 파이프라인의 진입점입니다.
+# 데이터 다운로드, Pandas/Polars 로딩, 정제, EDA, 시각화, 통계, 모델 학습,
+# 보고서 생성을 순차적으로 실행하는 메인 스크립트입니다.
 
 # 탐색적 데이터 분석, 시각화, 통계 분석에 필요한 함수를 가져옵니다.
 from src.analysis import (
@@ -41,7 +44,6 @@ from src.modeling import train_evaluate_save_model
 
 # 분석 결과를 Markdown 보고서로 생성하는 함수를 가져옵니다.
 from src.reporting import generate_report
-
 
 def main() -> None:
     """데이터 준비부터 보고서 생성까지 전체 분석 과정을 순서대로 실행합니다."""
@@ -160,6 +162,31 @@ def main() -> None:
     print("\n학력 그룹별 고소득 분석 결과")
     print(education_income)
 
+    # 같은 학력 안에서 직업별 고소득률 차이를 출력합니다.
+    print("\n같은 학력 내 직업별 고소득률 차이")
+    for education_group, result in eda_summary[
+        "occupation_gap_by_education"
+    ].items():
+        print(
+            f"{education_group}: "
+            f"{result['lowest_occupation']} {result['lowest_rate']}% → "
+            f"{result['highest_occupation']} {result['highest_rate']}% "
+            f"(격차 {result['gap_percentage_points']}%p)"
+        )
+
+    # 학력 그룹 간 고소득률 격차가 가장 큰 직업 5개를 출력합니다.
+    print("\n학력에 따른 고소득률 격차가 큰 직업 TOP 5")
+    for rank, result in enumerate(
+        eda_summary["education_gap_by_occupation"][:5],
+        start=1,
+    ):
+        print(
+            f"{rank}. {result['occupation']}: "
+            f"{result['lowest_education_group']} {result['lowest_rate']}% → "
+            f"{result['highest_education_group']} {result['highest_rate']}% "
+            f"(격차 {result['gap_percentage_points']}%p)"
+        )
+
     # 탐색적 데이터 분석 결과를 JSON 파일로 저장합니다.
     save_json(
         eda_summary,
@@ -182,9 +209,9 @@ def main() -> None:
     # 6. 통계 분석
     # ---------------------------------------------------------
 
-    print("[6/8] 기술통계, 상관분석, t-test를 수행합니다.")
+    print("[6/8] 교육 수준 차이와 상관관계를 분석합니다.")
 
-    # 소득 집단별 주당 근무시간 차이를 Welch t-test로 검정하고,
+    # 소득 집단별 교육 수준 차이를 Welch t-test로 검정하고,
     # 숫자형 변수 간 상관계수를 계산합니다.
     statistics = run_statistics(
         pandas_clean
@@ -248,6 +275,20 @@ def main() -> None:
     # 주요 머신러닝 평가 결과를 출력합니다.
     print(f"정확도: {model_metrics['accuracy']}")
     print(f"F1 점수: {model_metrics['f1']}")
+
+    # 소득 집단별 교육 수준 차이 검정 결과를 출력합니다.
+    print("\n소득 집단별 교육 수준 차이 검정 결과")
+    print(f"분석 변수: {statistics['variable']}")
+    print(
+        f"<=50K 집단 평균: "
+        f"{statistics['low_income_mean']}"
+    )
+    print(
+        f">50K 집단 평균: "
+        f"{statistics['high_income_mean']}"
+    )
+    print(f"t통계량: {statistics['t_statistic']}")
+    print(f"p-value: {statistics['p_value_display']}")
 
     # 저장한 모델을 다시 불러온 뒤에도 예측 결과가 같은지 출력합니다.
     print(

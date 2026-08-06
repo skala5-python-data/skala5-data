@@ -27,6 +27,153 @@
       "high_income_rate": 62.26
     }
   },
+  "occupation_gap_by_education": {
+    "고졸 미만": {
+      "lowest_occupation": "Priv-house-serv",
+      "lowest_rate": 0.0,
+      "highest_occupation": "Exec-managerial",
+      "highest_rate": 24.07,
+      "gap_percentage_points": 24.07
+    },
+    "고졸": {
+      "lowest_occupation": "Priv-house-serv",
+      "lowest_rate": 0.0,
+      "highest_occupation": "Exec-managerial",
+      "highest_rate": 32.34,
+      "gap_percentage_points": 32.34
+    },
+    "대학 과정·전문학사": {
+      "lowest_occupation": "Other-service",
+      "lowest_rate": 4.22,
+      "highest_occupation": "Exec-managerial",
+      "highest_rate": 37.68,
+      "gap_percentage_points": 33.46
+    },
+    "학사": {
+      "lowest_occupation": "Other-service",
+      "lowest_rate": 16.02,
+      "highest_occupation": "Exec-managerial",
+      "highest_rate": 56.9,
+      "gap_percentage_points": 40.88
+    },
+    "대학원 이상": {
+      "lowest_occupation": "Adm-clerical",
+      "lowest_rate": 35.37,
+      "highest_occupation": "Exec-managerial",
+      "highest_rate": 75.66,
+      "gap_percentage_points": 40.29
+    }
+  },
+  "education_gap_by_occupation": [
+    {
+      "occupation": "Sales",
+      "education_groups_compared": 5,
+      "lowest_education_group": "고졸 미만",
+      "lowest_rate": 7.08,
+      "highest_education_group": "대학원 이상",
+      "highest_rate": 60.0,
+      "gap_percentage_points": 52.92
+    },
+    {
+      "occupation": "Exec-managerial",
+      "education_groups_compared": 5,
+      "lowest_education_group": "고졸 미만",
+      "lowest_rate": 24.07,
+      "highest_education_group": "대학원 이상",
+      "highest_rate": 75.66,
+      "gap_percentage_points": 51.58
+    },
+    {
+      "occupation": "Protective-serv",
+      "education_groups_compared": 4,
+      "lowest_education_group": "고졸 미만",
+      "lowest_rate": 5.88,
+      "highest_education_group": "학사",
+      "highest_rate": 56.0,
+      "gap_percentage_points": 50.12
+    },
+    {
+      "occupation": "Prof-specialty",
+      "education_groups_compared": 5,
+      "lowest_education_group": "고졸 미만",
+      "lowest_rate": 12.28,
+      "highest_education_group": "대학원 이상",
+      "highest_rate": 61.88,
+      "gap_percentage_points": 49.6
+    },
+    {
+      "occupation": "Craft-repair",
+      "education_groups_compared": 5,
+      "lowest_education_group": "고졸 미만",
+      "lowest_rate": 9.65,
+      "highest_education_group": "대학원 이상",
+      "highest_rate": 51.61,
+      "gap_percentage_points": 41.96
+    },
+    {
+      "occupation": "Adm-clerical",
+      "education_groups_compared": 5,
+      "lowest_education_group": "고졸 미만",
+      "lowest_rate": 3.41,
+      "highest_education_group": "대학원 이상",
+      "highest_rate": 35.37,
+      "gap_percentage_points": 31.96
+    },
+    {
+      "occupation": "Farming-fishing",
+      "education_groups_compared": 4,
+      "lowest_education_group": "고졸 미만",
+      "lowest_rate": 3.89,
+      "highest_education_group": "학사",
+      "highest_rate": 27.27,
+      "gap_percentage_points": 23.38
+    },
+    {
+      "occupation": "Tech-support",
+      "education_groups_compared": 4,
+      "lowest_education_group": "대학 과정·전문학사",
+      "lowest_rate": 28.03,
+      "highest_education_group": "대학원 이상",
+      "highest_rate": 51.06,
+      "gap_percentage_points": 23.04
+    },
+    {
+      "occupation": "Machine-op-inspct",
+      "education_groups_compared": 4,
+      "lowest_education_group": "고졸 미만",
+      "lowest_rate": 4.66,
+      "highest_education_group": "학사",
+      "highest_rate": 26.09,
+      "gap_percentage_points": 21.43
+    },
+    {
+      "occupation": "Handlers-cleaners",
+      "education_groups_compared": 4,
+      "lowest_education_group": "고졸 미만",
+      "lowest_rate": 3.65,
+      "highest_education_group": "학사",
+      "highest_rate": 22.0,
+      "gap_percentage_points": 18.35
+    },
+    {
+      "occupation": "Other-service",
+      "education_groups_compared": 4,
+      "lowest_education_group": "고졸 미만",
+      "lowest_rate": 1.32,
+      "highest_education_group": "학사",
+      "highest_rate": 16.02,
+      "gap_percentage_points": 14.7
+    },
+    {
+      "occupation": "Transport-moving",
+      "education_groups_compared": 4,
+      "lowest_education_group": "고졸 미만",
+      "lowest_rate": 12.43,
+      "highest_education_group": "대학 과정·전문학사",
+      "highest_rate": 24.86,
+      "gap_percentage_points": 12.43
+    }
+  ],
   "numeric_summary": {
     "age": {
       "count": 32537.0,

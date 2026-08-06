@@ -1,5 +1,10 @@
 # src/config.py
 
+# src/config.py
+# 프로젝트 전반에서 사용하는 설정값과 파일 경로를 정의합니다.
+# 데이터 다운로드 URL, 원본/전처리 파일 경로, 차트 저장 경로,
+# JSON 결과 파일 경로, 컬럼 이름, 랜덤 시드 등 환경 설정을 모아 둡니다.
+
 # 파일과 폴더 경로를 운영체제에 맞게 안전하게 다루기 위한 클래스입니다.
 from pathlib import Path
 
@@ -82,6 +87,16 @@ EDUCATION_INCOME_CHART_PATH = CHART_DIR / "education_income_rate.png"
 # 학력 그룹과 직업별 고소득 비율 히트맵의 저장 경로입니다.
 EDUCATION_OCCUPATION_CHART_PATH = (
     CHART_DIR / "education_occupation_income_heatmap.png"
+)
+
+# 같은 학력 안에서 최저·최고 직업 고소득률을 비교하는 차트 경로입니다.
+EDUCATION_OCCUPATION_GAP_CHART_PATH = (
+    CHART_DIR / "education_occupation_rate_gap.png"
+)
+
+# 학력 그룹별 고소득률 격차가 큰 직업 TOP 5 차트 경로입니다.
+OCCUPATION_EDUCATION_GAP_CHART_PATH = (
+    CHART_DIR / "occupation_education_gap_top5.png"
 )
 
 # 머신러닝 모델의 혼동행렬 차트를 저장할 경로입니다.

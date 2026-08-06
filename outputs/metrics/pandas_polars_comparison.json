@@ -2,24 +2,24 @@
   "pandas": {
     "rows": 32537,
     "columns": 15,
-    "load_seconds": 0.025121,
-    "memory_bytes": 20722338,
+    "load_seconds": 0.025171,
+    "memory_bytes": 20858690,
     "rows_before": 32561,
     "rows_after": 32537,
     "duplicates_removed": 24,
     "missing_values_before": 4262,
-    "missing_values_after": 4261
+    "missing_values_after": 0
   },
   "polars": {
     "rows": 32537,
     "columns": 15,
-    "load_seconds": 0.017686,
-    "memory_bytes": 3218734,
+    "load_seconds": 0.018154,
+    "memory_bytes": 3248561,
     "rows_before": 32561,
     "rows_after": 32537,
     "duplicates_removed": 24,
     "missing_values_before": 4262,
-    "missing_values_after": 4261
+    "missing_values_after": 0
   },
   "same_cleaned_shape": true
 }

@@ -1,8 +1,8 @@
-# Day 2 End-to-End 데이터 분석 결과 보고서
+# 학력 수준과 고소득 관계 분석 보고서
 
 ## 1. 프로젝트 개요
 
-Adult Census Income 데이터를 정제하고 시각화한 뒤, 두 소득 집단의 주당 근무시간 차이를 검정했습니다. 개인 특성을 이용해 연 소득이 50K를 초과하는지 예측하는 분류 모델도 학습했습니다.
+Adult Census Income 데이터를 바탕으로 학력 수준에 따른 고소득 비율을 분석하고, 학력과 직업을 함께 고려했을 때의 차이를 시각화했습니다. 두 소득 집단의 교육 수준 차이를 검정하고, 개인 특성을 이용해 연 소득이 50K를 초과하는지 예측하는 분류 모델도 학습했습니다.
 
 ## 2. 데이터 처리 결과
 
@@ -13,9 +13,13 @@ Adult Census Income 데이터를 정제하고 시각화한 뒤, 두 소득 집�
 | 로딩 시간(초) | {{ comparison.pandas.load_seconds }} | {{ comparison.polars.load_seconds }} |
 | 추정 메모리(Byte) | {{ comparison.pandas.memory_bytes }} | {{ comparison.polars.memory_bytes }} |
 | 제거한 중복 행 | {{ comparison.pandas.duplicates_removed }} | {{ comparison.polars.duplicates_removed }} |
+| 처리 전 결측치 | {{ comparison.pandas.missing_values_before }} | {{ comparison.polars.missing_values_before }} |
+| 처리 후 결측치 | {{ comparison.pandas.missing_values_after }} | {{ comparison.polars.missing_values_after }} |
 
 - Pandas와 Polars 정제 결과의 크기 일치 여부: `{{ comparison.same_cleaned_shape }}`
 - 전체 정제 후 행 수: {{ eda.rows }}
+
+원본 데이터에서 `?`로 표시된 값을 결측치로 인식했습니다. 예측 대상인 `income`이 결측된 행은 제거하고, 범주형 설명변수의 결측치는 데이터 손실을 줄이기 위해 `Unknown` 범주로 대체했습니다. 머신러닝 Pipeline에도 수치형 중앙값 및 범주형 최빈값 대치 단계를 포함하여 새로운 데이터에 결측치가 들어오는 경우를 처리하도록 구성했습니다.
 
 ## 3. 소득 분포
 
@@ -41,11 +45,35 @@ Adult Census Income 데이터를 정제하고 시각화한 뒤, 두 소득 집�
 
 ![High-income rate by education and occupation](../charts/education_occupation_income_heatmap.png)
 
+### 5.1 같은 학력에서도 직업별 고소득 비율이 다른가?
+
+| 학력 그룹 | 고소득률이 낮은 직업 | 비율 | 고소득률이 높은 직업 | 비율 | 격차 |
+|---|---|---:|---|---:|---:|
+{% for education_group, result in eda.occupation_gap_by_education.items() %}
+| {{ education_group }} | {{ result.lowest_occupation }} | {{ result.lowest_rate }}% | {{ result.highest_occupation }} | {{ result.highest_rate }}% | {{ result.gap_percentage_points }}%p |
+{% endfor %}
+
+모든 학력 그룹에서 직업별 고소득률 차이가 나타났습니다. 따라서 학력이 같더라도 직업에 따라 고소득 가능성이 다르게 관측된다고 해석할 수 있습니다.
+
+![Occupation rate gap within education level](../charts/education_occupation_rate_gap.png)
+
+### 5.2 학력에 따른 고소득률 격차가 가장 큰 직업
+
+아래 표는 표본 30명 이상인 학력 그룹이 3개 이상 존재하는 직업을 대상으로, 관측된 최고·최저 학력 그룹의 고소득률 격차를 계산한 결과입니다.
+
+| 순위 | 직업 | 낮은 비율의 학력 그룹 | 비율 | 높은 비율의 학력 그룹 | 비율 | 격차 |
+|---:|---|---|---:|---|---:|---:|
+{% for result in eda.education_gap_by_occupation[:5] %}
+| {{ loop.index }} | {{ result.occupation }} | {{ result.lowest_education_group }} | {{ result.lowest_rate }}% | {{ result.highest_education_group }} | {{ result.highest_rate }}% | {{ result.gap_percentage_points }}%p |
+{% endfor %}
+
+이 격차는 관찰 데이터에서 나타난 연관성으로, 학력의 인과효과를 직접 의미하지는 않습니다.
+
+![Top occupations by education gap](../charts/occupation_education_gap_top5.png)
+
 ## 6. 상관관계
 
 ![Correlation heatmap](../charts/correlation_heatmap.png)
-
-인터랙티브 차트는 [hours_by_income.html](../charts/hours_by_income.html) 파일에서 확인합니다.
 
 ## 7. 독립표본 t-test
 

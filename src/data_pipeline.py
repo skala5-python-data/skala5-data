@@ -1,5 +1,10 @@
 # src/data_pipeline.py
 
+# src/data_pipeline.py
+# 원본 데이터를 다운로드, 로드, 정제하는 데이터 파이프라인을 구현합니다.
+# Pandas와 Polars 두 가지 방법으로 데이터를 읽고 로딩 시간을 측정하며,
+# 결측치와 중복값을 처리한 뒤 두 결과를 비교합니다.
+
 # 파일과 폴더 경로를 운영체제에 맞게 다루기 위해 사용합니다.
 from pathlib import Path
 
@@ -159,6 +164,13 @@ def clean_pandas(
     # 예측 대상인 income 값이 없는 행은 모델 학습에 사용할 수 없으므로 제거합니다.
     cleaned = cleaned.dropna(subset=["income"]).reset_index(drop=True)
 
+    # 범주형 설명변수의 결측치는 행을 삭제하지 않고 Unknown으로 대체합니다.
+    # 데이터 손실을 줄이면서 결측 여부 자체도 하나의 범주로 보존할 수 있습니다.
+    feature_text_columns = text_columns.drop("income", errors="ignore")
+    cleaned[feature_text_columns] = cleaned[feature_text_columns].fillna(
+        "Unknown"
+    )
+
     # 데이터 정제 전후 상태를 사전 형태로 정리합니다.
     summary = {
         "rows_before": rows_before,
@@ -191,6 +203,20 @@ def clean_polars(
         # 예측 대상인 income 값이 null인 행은 제거합니다.
         pl.col("income").is_not_null()
     )
+
+    # 범주형 설명변수의 결측치는 Pandas와 같은 Unknown 값으로 대체합니다.
+    feature_string_columns = [
+        name
+        for name, dtype in cleaned.schema.items()
+        if dtype == pl.String and name != "income"
+    ]
+    if feature_string_columns:
+        cleaned = cleaned.with_columns(
+            [
+                pl.col(name).fill_null("Unknown")
+                for name in feature_string_columns
+            ]
+        )
 
     # 정제 전후 결과를 사전 형태로 정리합니다.
     summary = {

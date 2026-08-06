@@ -1,4 +1,6 @@
 # src/io_utils.py
+# JSON 파일로 결과를 저장하는 공통 유틸리티가 포함된 모듈입니다.
+# save_json()는 Python 객체를 UTF-8 JSON 파일로 안전하게 직렬화합니다.
 
 # Python 객체를 JSON 형식으로 저장하기 위해 사용하는 표준 라이브러리입니다.
 import json
