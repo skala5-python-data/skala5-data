@@ -62,6 +62,6 @@
       "support": 6508.0
     }
   },
-  "model_path": "/Users/kimgayeon/6_PythonData/skala5-data/outputs/models/income_pipeline.joblib",
+  "model_path": "outputs/models/income_pipeline.joblib",
   "reloaded_predictions_match": true
 }

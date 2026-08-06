@@ -53,6 +53,7 @@ from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
 # 차트 저장 경로, 난수값, 테스트 데이터 비율을 가져옵니다.
 from src.config import (
+    BASE_DIR,
     CONFUSION_MATRIX_PATH,
     MODEL_METRICS_CHART_PATH,
     RANDOM_STATE,
@@ -409,8 +410,8 @@ def train_evaluate_save_model(
         # 클래스별 상세 평가 결과입니다.
         "classification_report": report,
 
-        # 저장한 머신러닝 모델 파일의 경로입니다.
-        "model_path": str(model_path),
+        # 로컬 사용자 경로가 노출되지 않도록 프로젝트 기준 상대경로를 저장합니다.
+        "model_path": str(model_path.relative_to(BASE_DIR)),
 
         # 모델 저장 전후의 예측 결과가 같은지 나타냅니다.
         "reloaded_predictions_match": reloaded_match,

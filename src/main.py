@@ -2,6 +2,7 @@
 
 # 탐색적 데이터 분석, 시각화, 통계 분석에 필요한 함수를 가져옵니다.
 from src.analysis import (
+    add_analysis_features,
     create_eda_summary,
     create_visualizations,
     run_statistics,
@@ -140,6 +141,24 @@ def main() -> None:
     eda_summary = create_eda_summary(
         pandas_clean
     )
+
+    # 학력 그룹별 전체 인원과 평균 고소득 여부를 집계합니다.
+    analyzed = add_analysis_features(pandas_clean)
+    education_income = (
+        analyzed.groupby(
+            "education-group",
+            observed=True,
+        )["high-income"]
+        .agg(["count", "mean"])
+    )
+    education_income["high_income_rate"] = (
+        education_income["mean"] * 100
+    )
+
+    # 별도의 Python 스크립트를 실행하지 않아도 메인 실행 결과에서
+    # 학력 그룹별 고소득 비율을 바로 확인할 수 있도록 출력합니다.
+    print("\n학력 그룹별 고소득 분석 결과")
+    print(education_income)
 
     # 탐색적 데이터 분석 결과를 JSON 파일로 저장합니다.
     save_json(

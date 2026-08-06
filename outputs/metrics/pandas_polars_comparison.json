@@ -2,8 +2,8 @@
   "pandas": {
     "rows": 32537,
     "columns": 15,
-    "load_seconds": 0.031853,
-    "memory_bytes": 6516658,
+    "load_seconds": 0.025121,
+    "memory_bytes": 20722338,
     "rows_before": 32561,
     "rows_after": 32537,
     "duplicates_removed": 24,
@@ -13,7 +13,7 @@
   "polars": {
     "rows": 32537,
     "columns": 15,
-    "load_seconds": 0.021734,
+    "load_seconds": 0.017686,
     "memory_bytes": 3218734,
     "rows_before": 32561,
     "rows_after": 32537,
