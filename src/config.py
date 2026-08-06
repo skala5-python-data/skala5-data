@@ -84,6 +84,16 @@ EDUCATION_OCCUPATION_CHART_PATH = (
     CHART_DIR / "education_occupation_income_heatmap.png"
 )
 
+# 같은 학력 안에서 최저·최고 직업 고소득률을 비교하는 차트 경로입니다.
+EDUCATION_OCCUPATION_GAP_CHART_PATH = (
+    CHART_DIR / "education_occupation_rate_gap.png"
+)
+
+# 학력 그룹별 고소득률 격차가 큰 직업 TOP 5 차트 경로입니다.
+OCCUPATION_EDUCATION_GAP_CHART_PATH = (
+    CHART_DIR / "occupation_education_gap_top5.png"
+)
+
 # 머신러닝 모델의 혼동행렬 차트를 저장할 경로입니다.
 CONFUSION_MATRIX_PATH = CHART_DIR / "confusion_matrix.png"
 

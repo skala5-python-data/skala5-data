@@ -55,6 +55,8 @@ Adult Census Income 데이터를 바탕으로 학력 수준에 따른 고소득 
 
 모든 학력 그룹에서 직업별 고소득률 차이가 나타났습니다. 따라서 학력이 같더라도 직업에 따라 고소득 가능성이 다르게 관측된다고 해석할 수 있습니다.
 
+![Occupation rate gap within education level](../charts/education_occupation_rate_gap.png)
+
 ### 5.2 학력에 따른 고소득률 격차가 가장 큰 직업
 
 아래 표는 표본 30명 이상인 학력 그룹이 3개 이상 존재하는 직업을 대상으로, 관측된 최고·최저 학력 그룹의 고소득률 격차를 계산한 결과입니다.
@@ -66,6 +68,8 @@ Adult Census Income 데이터를 바탕으로 학력 수준에 따른 고소득 
 {% endfor %}
 
 이 격차는 관찰 데이터에서 나타난 연관성으로, 학력의 인과효과를 직접 의미하지는 않습니다.
+
+![Top occupations by education gap](../charts/occupation_education_gap_top5.png)
 
 ## 6. 상관관계
 
