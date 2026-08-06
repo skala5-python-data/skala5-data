@@ -160,6 +160,31 @@ def main() -> None:
     print("\n학력 그룹별 고소득 분석 결과")
     print(education_income)
 
+    # 같은 학력 안에서 직업별 고소득률 차이를 출력합니다.
+    print("\n같은 학력 내 직업별 고소득률 차이")
+    for education_group, result in eda_summary[
+        "occupation_gap_by_education"
+    ].items():
+        print(
+            f"{education_group}: "
+            f"{result['lowest_occupation']} {result['lowest_rate']}% → "
+            f"{result['highest_occupation']} {result['highest_rate']}% "
+            f"(격차 {result['gap_percentage_points']}%p)"
+        )
+
+    # 학력 그룹 간 고소득률 격차가 가장 큰 직업 5개를 출력합니다.
+    print("\n학력에 따른 고소득률 격차가 큰 직업 TOP 5")
+    for rank, result in enumerate(
+        eda_summary["education_gap_by_occupation"][:5],
+        start=1,
+    ):
+        print(
+            f"{rank}. {result['occupation']}: "
+            f"{result['lowest_education_group']} {result['lowest_rate']}% → "
+            f"{result['highest_education_group']} {result['highest_rate']}% "
+            f"(격차 {result['gap_percentage_points']}%p)"
+        )
+
     # 탐색적 데이터 분석 결과를 JSON 파일로 저장합니다.
     save_json(
         eda_summary,

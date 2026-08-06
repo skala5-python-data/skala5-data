@@ -127,6 +127,76 @@ def create_eda_summary(dataframe: pd.DataFrame) -> dict[str, object]:
         for group, row in education_income.iterrows()
     }
 
+    # 학력과 직업 조합별 표본 수와 고소득률을 계산합니다.
+    # 표본이 30명 미만인 조합과 직업 결측 대체 범주는 비교에서 제외합니다.
+    education_occupation = (
+        analyzed.groupby(
+            ["education-group", "occupation"],
+            observed=True,
+        )["high-income"]
+        .agg(["count", "mean"])
+        .reset_index()
+    )
+    education_occupation = education_occupation.loc[
+        (education_occupation["count"] >= 30)
+        & (education_occupation["occupation"] != "Unknown")
+    ].copy()
+    education_occupation["high_income_rate"] = (
+        education_occupation["mean"] * 100
+    )
+
+    # 같은 학력 그룹 안에서 고소득률이 가장 낮고 높은 직업을 찾습니다.
+    occupation_gap_by_education = {}
+    for education_group, group_data in education_occupation.groupby(
+        "education-group",
+        observed=True,
+    ):
+        lowest = group_data.loc[group_data["high_income_rate"].idxmin()]
+        highest = group_data.loc[group_data["high_income_rate"].idxmax()]
+        occupation_gap_by_education[str(education_group)] = {
+            "lowest_occupation": str(lowest["occupation"]),
+            "lowest_rate": round(float(lowest["high_income_rate"]), 2),
+            "highest_occupation": str(highest["occupation"]),
+            "highest_rate": round(float(highest["high_income_rate"]), 2),
+            "gap_percentage_points": round(
+                float(
+                    highest["high_income_rate"]
+                    - lowest["high_income_rate"]
+                ),
+                2,
+            ),
+        }
+
+    # 직업별로 관측된 학력 그룹의 최고·최저 고소득률 격차를 계산합니다.
+    # 비교 안정성을 위해 유효한 학력 그룹이 3개 이상인 직업만 사용합니다.
+    education_gap_by_occupation = []
+    for occupation, group_data in education_occupation.groupby("occupation"):
+        if len(group_data) < 3:
+            continue
+        lowest = group_data.loc[group_data["high_income_rate"].idxmin()]
+        highest = group_data.loc[group_data["high_income_rate"].idxmax()]
+        education_gap_by_occupation.append(
+            {
+                "occupation": str(occupation),
+                "education_groups_compared": int(len(group_data)),
+                "lowest_education_group": str(lowest["education-group"]),
+                "lowest_rate": round(float(lowest["high_income_rate"]), 2),
+                "highest_education_group": str(highest["education-group"]),
+                "highest_rate": round(float(highest["high_income_rate"]), 2),
+                "gap_percentage_points": round(
+                    float(
+                        highest["high_income_rate"]
+                        - lowest["high_income_rate"]
+                    ),
+                    2,
+                ),
+            }
+        )
+    education_gap_by_occupation.sort(
+        key=lambda result: result["gap_percentage_points"],
+        reverse=True,
+    )
+
     # EDA 결과를 하나의 사전으로 묶어 반환합니다.
     return {
         # 전체 행의 개수입니다.
@@ -145,6 +215,12 @@ def create_eda_summary(dataframe: pd.DataFrame) -> dict[str, object]:
 
         # 학력 그룹별 표본 수와 고소득 비율입니다.
         "education_income_summary": education_income_summary,
+
+        # 같은 학력 안에서 직업별 고소득률 차이를 비교한 결과입니다.
+        "occupation_gap_by_education": occupation_gap_by_education,
+
+        # 직업별 학력 그룹 간 고소득률 격차가 큰 순서의 결과입니다.
+        "education_gap_by_occupation": education_gap_by_occupation,
 
         # 숫자형 컬럼의 기술통계 결과입니다.
         "numeric_summary": numeric_summary,
