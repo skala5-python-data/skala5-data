@@ -182,9 +182,9 @@ def main() -> None:
     # 6. 통계 분석
     # ---------------------------------------------------------
 
-    print("[6/8] 기술통계, 상관분석, t-test를 수행합니다.")
+    print("[6/8] 교육 수준 차이와 상관관계를 분석합니다.")
 
-    # 소득 집단별 주당 근무시간 차이를 Welch t-test로 검정하고,
+    # 소득 집단별 교육 수준 차이를 Welch t-test로 검정하고,
     # 숫자형 변수 간 상관계수를 계산합니다.
     statistics = run_statistics(
         pandas_clean
@@ -248,6 +248,20 @@ def main() -> None:
     # 주요 머신러닝 평가 결과를 출력합니다.
     print(f"정확도: {model_metrics['accuracy']}")
     print(f"F1 점수: {model_metrics['f1']}")
+
+    # 소득 집단별 교육 수준 차이 검정 결과를 출력합니다.
+    print("\n소득 집단별 교육 수준 차이 검정 결과")
+    print(f"분석 변수: {statistics['variable']}")
+    print(
+        f"<=50K 집단 평균: "
+        f"{statistics['low_income_mean']}"
+    )
+    print(
+        f">50K 집단 평균: "
+        f"{statistics['high_income_mean']}"
+    )
+    print(f"t통계량: {statistics['t_statistic']}")
+    print(f"p-value: {statistics['p_value_display']}")
 
     # 저장한 모델을 다시 불러온 뒤에도 예측 결과가 같은지 출력합니다.
     print(

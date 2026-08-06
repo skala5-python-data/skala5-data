@@ -1,17 +1,17 @@
 {
   "test": "Welch independent two-sample t-test",
-  "variable": "hours-per-week",
+  "variable": "education-num",
   "group_low_income": "<=50K",
   "group_high_income": ">50K",
   "low_income_count": 24698,
   "high_income_count": 7839,
-  "low_income_mean": 38.8429,
-  "high_income_mean": 45.4734,
-  "t_statistic": -45.095026,
+  "low_income_mean": 9.5961,
+  "high_income_mean": 11.6122,
+  "t_statistic": -64.876078,
   "p_value": 0.0,
   "p_value_display": "< 1e-300",
   "alpha": 0.05,
-  "interpretation": "p-value가 0.05보다 작으므로 두 소득 집단의 주당 근무시간 평균은 통계적으로 유의한 차이가 있다고 해석합니다.",
+  "interpretation": "p-value가 0.05보다 작으므로 두 소득 집단의 교육 수준 평균은 통계적으로 유의한 차이가 있다고 해석합니다.",
   "numeric_correlation": {
     "age": {
       "age": 1.0,

@@ -40,6 +40,7 @@ EDUCATION_LABELS_EN = {
     "대학원 이상": "Graduate degree",
 }
 
+
 def add_analysis_features(
     dataframe: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -89,6 +90,7 @@ def add_analysis_features(
     ).astype(int)
 
     return analyzed
+
 
 def create_eda_summary(dataframe: pd.DataFrame) -> dict[str, object]:
     """데이터의 기본 구조와 기술통계 결과를 사전 형태로 반환합니다."""
@@ -381,19 +383,19 @@ def create_visualizations(dataframe: pd.DataFrame) -> None:
 
 
 def run_statistics(dataframe: pd.DataFrame) -> dict[str, object]:
-    """소득 집단별 주당 근무시간 평균 차이를 통계적으로 검정합니다."""
+    """소득 집단별 교육 수준 평균 차이를 통계적으로 검정합니다."""
 
-    # 소득이 50K 이하인 집단의 주당 근무시간만 선택합니다.
+    # 소득이 50K 이하인 집단의 교육 수준 수치만 선택합니다.
     # dropna()는 결측치를 제거합니다.
     low_income = dataframe.loc[
         dataframe["income"] == "<=50K",
-        "hours-per-week",
+        "education-num",
     ].dropna()
 
-    # 소득이 50K를 초과하는 집단의 주당 근무시간만 선택합니다.
+    # 소득이 50K를 초과하는 집단의 교육 수준 수치만 선택합니다.
     high_income = dataframe.loc[
         dataframe["income"] == ">50K",
-        "hours-per-week",
+        "education-num",
     ].dropna()
 
     # 두 독립 집단의 평균 차이를 확인하기 위해 Welch t-test를 수행합니다.
@@ -423,12 +425,12 @@ def run_statistics(dataframe: pd.DataFrame) -> dict[str, object]:
     # 유의수준 0.05를 기준으로 통계적 유의성을 해석합니다.
     if p_value < 0.05:
         interpretation = (
-            "p-value가 0.05보다 작으므로 두 소득 집단의 주당 근무시간 "
+            "p-value가 0.05보다 작으므로 두 소득 집단의 교육 수준 "
             "평균은 통계적으로 유의한 차이가 있다고 해석합니다."
         )
     else:
         interpretation = (
-            "p-value가 0.05 이상이므로 두 소득 집단의 주당 근무시간 "
+            "p-value가 0.05 이상이므로 두 소득 집단의 교육 수준 "
             "평균 차이가 통계적으로 유의하다고 보기 어렵습니다."
         )
 
@@ -446,7 +448,7 @@ def run_statistics(dataframe: pd.DataFrame) -> dict[str, object]:
         "test": "Welch independent two-sample t-test",
 
         # 두 집단에서 비교한 변수입니다.
-        "variable": "hours-per-week",
+        "variable": "education-num",
 
         # 비교 대상 집단의 이름입니다.
         "group_low_income": "<=50K",
@@ -456,7 +458,7 @@ def run_statistics(dataframe: pd.DataFrame) -> dict[str, object]:
         "low_income_count": int(low_income.size),
         "high_income_count": int(high_income.size),
 
-        # 각 집단의 평균 주당 근무시간입니다.
+        # 각 집단의 평균 교육 수준 수치입니다.
         "low_income_mean": round(
             float(low_income.mean()),
             4,

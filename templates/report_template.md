@@ -1,8 +1,8 @@
-# Day 2 End-to-End 데이터 분석 결과 보고서
+# 학력 수준과 고소득 관계 분석 보고서
 
 ## 1. 프로젝트 개요
 
-Adult Census Income 데이터를 정제하고 시각화한 뒤, 두 소득 집단의 주당 근무시간 차이를 검정했습니다. 개인 특성을 이용해 연 소득이 50K를 초과하는지 예측하는 분류 모델도 학습했습니다.
+Adult Census Income 데이터를 바탕으로 학력 수준에 따른 고소득 비율을 분석하고, 학력과 직업을 함께 고려했을 때의 차이를 시각화했습니다. 두 소득 집단의 교육 수준 차이를 검정하고, 개인 특성을 이용해 연 소득이 50K를 초과하는지 예측하는 분류 모델도 학습했습니다.
 
 ## 2. 데이터 처리 결과
 
@@ -44,8 +44,6 @@ Adult Census Income 데이터를 정제하고 시각화한 뒤, 두 소득 집�
 ## 6. 상관관계
 
 ![Correlation heatmap](../charts/correlation_heatmap.png)
-
-인터랙티브 차트는 [hours_by_income.html](../charts/hours_by_income.html) 파일에서 확인합니다.
 
 ## 7. 독립표본 t-test
 
