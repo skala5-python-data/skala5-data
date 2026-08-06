@@ -1,4 +1,7 @@
 # src/main.py
+# 전체 분석 파이프라인의 진입점입니다.
+# 데이터 다운로드, Pandas/Polars 로딩, 정제, EDA, 시각화, 통계, 모델 학습,
+# 보고서 생성을 순차적으로 실행하는 메인 스크립트입니다.
 
 # 탐색적 데이터 분석, 시각화, 통계 분석에 필요한 함수를 가져옵니다.
 from src.analysis import (
@@ -41,7 +44,6 @@ from src.modeling import train_evaluate_save_model
 
 # 분석 결과를 Markdown 보고서로 생성하는 함수를 가져옵니다.
 from src.reporting import generate_report
-
 
 def main() -> None:
     """데이터 준비부터 보고서 생성까지 전체 분석 과정을 순서대로 실행합니다."""

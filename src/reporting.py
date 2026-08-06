@@ -1,4 +1,6 @@
 # src/reporting.py
+# 분석 결과를 Markdown 템플릿에 적용하여 최종 보고서를 생성하는 모듈입니다.
+# Jinja2를 사용해 JSON 결과를 문서 형태로 렌더링하고 파일로 저장합니다.
 
 # 파일과 폴더 경로를 운영체제에 맞게 처리합니다.
 from pathlib import Path

@@ -1,5 +1,10 @@
 # src/data_pipeline.py
 
+# src/data_pipeline.py
+# 원본 데이터를 다운로드, 로드, 정제하는 데이터 파이프라인을 구현합니다.
+# Pandas와 Polars 두 가지 방법으로 데이터를 읽고 로딩 시간을 측정하며,
+# 결측치와 중복값을 처리한 뒤 두 결과를 비교합니다.
+
 # 파일과 폴더 경로를 운영체제에 맞게 다루기 위해 사용합니다.
 from pathlib import Path
 

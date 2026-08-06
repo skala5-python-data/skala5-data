@@ -1,4 +1,9 @@
 # src/analysis.py
+# 이 모듈은 정제된 Adult Census Income 데이터를 바탕으로
+# 탐색적 데이터 분석(EDA), 시각화, 통계 검정, 그리고 분석용 추가 피처
+# 생성을 담당합니다.
+# create_visualizations()는 여러 차트를 파일로 저장하고,
+# create_eda_summary()와 run_statistics()는 분석 결과를 사전 형태로 반환합니다.
 
 # 화면이 없는 실행 환경에서도 Matplotlib 차트를 저장할 수 있도록 설정합니다.
 import matplotlib
